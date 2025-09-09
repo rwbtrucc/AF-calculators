@@ -1,0 +1,89 @@
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# Create the form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "Cardiovascular Risk Calculators"
+$form.Size = New-Object System.Drawing.Size(400, 700)
+$form.StartPosition = "CenterScreen"
+$form.FormBorderStyle = "FixedSingle"
+$form.MaximizeBox = $false
+
+# CHADS-VASc section
+$chadsvascGroup = New-Object System.Windows.Forms.GroupBox
+$chadsvascGroup.Location = New-Object System.Drawing.Point(20, 20)
+$chadsvascGroup.Size = New-Object System.Drawing.Size(350, 280)
+$chadsvascGroup.Text = "CHADS-VASc Score"
+$form.Controls.Add($chadsvascGroup)
+
+$labels = @("CHF", "Hypertension", "Age 65-74", "Age >= 75", "Diabetes", "Stroke/TIA", "Vascular Disease", "Female")
+$chadsvascCheckboxes = @()
+for ($i = 0; $i -lt $labels.Count; $i++) {
+    $checkbox = New-Object System.Windows.Forms.CheckBox
+    $checkbox.Text = $labels[$i]
+    $checkbox.Location = New-Object System.Drawing.Point(10, 30 + $i * 25)
+    $checkbox.AutoSize = $true
+    $chadsvascGroup.Controls.Add($checkbox)
+    $chadsvascCheckboxes += $checkbox
+}
+$age75Checkbox = $chadsvascCheckboxes[3]
+$age65Checkbox = $chadsvascCheckboxes[2]
+
+# HAS-BLED section
+$hasbledGroup = New-Object System.Windows.Forms.GroupBox
+$hasbledGroup.Location = New-Object System.Drawing.Point(20, 310)
+$hasbledGroup.Size = New-Object System.Drawing.Size(350, 280)
+$hasbledGroup.Text = "HAS-BLED Score"
+$form.Controls.Add($hasbledGroup)
+
+$hasbledLabels = @("Uncontrolled HTN (>160 mmHg)", "Abnormal Renal Function", "Abnormal Liver Function", "Prior Stroke", "Bleeding History", "Labile INR", "Elderly (>65 years)", "Drugs/Alcohol")
+$hasbledCheckboxes = @()
+for ($i = 0; $i -lt $hasbledLabels.Count; $i++) {
+    $checkbox = New-Object System.Windows.Forms.CheckBox
+    $checkbox.Text = $hasbledLabels[$i]
+    $checkbox.Location = New-Object System.Drawing.Point(10, 30 + $i * 25)
+    $checkbox.AutoSize = $true
+    $hasbledGroup.Controls.Add($checkbox)
+    $hasbledCheckboxes += $checkbox
+}
+
+# Result label
+$resultLabel = New-Object System.Windows.Forms.Label
+$resultLabel.Location = New-Object System.Drawing.Point(20, 610)
+$resultLabel.Size = New-Object System.Drawing.Size(350, 40)
+$resultLabel.Text = ""
+$form.Controls.Add($resultLabel)
+
+# Calculate button
+$calculateButton = New-Object System.Windows.Forms.Button
+$calculateButton.Location = New-Object System.Drawing.Point(150, 650)
+$calculateButton.Size = New-Object System.Drawing.Size(100, 30)
+$calculateButton.Text = "Calculate Scores"
+$calculateButton.Add_Click({
+    $chadsvascScore = 0
+    if ($chadsvascCheckboxes[0].Checked) { $chadsvascScore += 1 } # CHF
+    if ($chadsvascCheckboxes[1].Checked) { $chadsvascScore += 1 } # HTN
+    if ($age65Checkbox.Checked) { $chadsvascScore += 1 }
+    if ($age75Checkbox.Checked) { $chadsvascScore += 2 }
+    if ($chadsvascCheckboxes[4].Checked) { $chadsvascScore += 1 } # Diabetes
+    if ($chadsvascCheckboxes[5].Checked) { $chadsvascScore += 2 } # Stroke
+    if ($chadsvascCheckboxes[6].Checked) { $chadsvascScore += 1 } # Vascular
+    if ($chadsvascCheckboxes[7].Checked) { $chadsvascScore += 1 } # Female
+
+    $hasbledScore = 0
+    if ($hasbledCheckboxes[0].Checked) { $hasbledScore += 1 } # HTN
+    if ($hasbledCheckboxes[1].Checked) { $hasbledScore += 1 } # Renal
+    if ($hasbledCheckboxes[2].Checked) { $hasbledScore += 1 } # Liver
+    if ($hasbledCheckboxes[3].Checked) { $hasbledScore += 1 } # Stroke
+    if ($hasbledCheckboxes[4].Checked) { $hasbledScore += 1 } # Bleeding
+    if ($hasbledCheckboxes[5].Checked) { $hasbledScore += 1 } # Labile INR
+    if ($hasbledCheckboxes[6].Checked) { $hasbledScore += 1 } # Elderly
+    if ($hasbledCheckboxes[7].Checked) { $hasbledScore += 1 } # Drugs/Alcohol
+
+    $resultLabel.Text = "CHADS-VASc Score: $chadsvascScore`nHAS-BLED Score: $hasbledScore"
+})
+$form.Controls.Add($calculateButton)
+
+# Display the form
+$form.ShowDialog()
+
