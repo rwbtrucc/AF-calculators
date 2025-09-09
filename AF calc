@@ -124,38 +124,49 @@ $calculateButton.Add_Click({
 
     # --- CHADS-VASc Calculation ---
     $chadsvascScore = 0
-    $chadsvascExplanation = New-Object System.Text.StringBuilder
-    $chadsvascExplanation.AppendLine("CHADS-VASc Score Components:") | Out-Null
+    $chadsvascDisplay = New-Object System.Text.StringBuilder
+    $chadsvascDisplay.AppendLine("CHADS-VASc Score Components:") | Out-Null
+    $chadsvascComponents = New-Object System.Collections.Generic.List[string]
     
-    if ($controls["CHF (Congestive Heart Failure)"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Congestive Heart Failure (+1)") | Out-Null }
-    if ($controls["Hypertension"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Hypertension (+1)") | Out-Null }
-    if ($age -ge 75) { $chadsvascScore += 2; $chadsvascExplanation.AppendLine("- Age >= 75 years (+2)") | Out-Null }
-    elseif ($age -ge 65) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Age 65-74 years (+1)") | Out-Null }
-    if ($controls["Diabetes"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Diabetes Mellitus (+1)") | Out-Null }
-    if ($controls["Stroke / TIA / Thromboembolism"].Checked) { $chadsvascScore += 2; $chadsvascExplanation.AppendLine("- Stroke/TIA/Thromboembolism (+2)") | Out-Null }
-    if ($controls["Vascular Disease (Prior MI, PAD, Aortic Plaque)"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Vascular Disease (+1)") | Out-Null }
-    if ($isFemale) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Female Sex (+1)") | Out-Null }
+    if ($controls["CHF (Congestive Heart Failure)"].Checked) { $chadsvascScore += 1; $chadsvascDisplay.AppendLine("- Congestive Heart Failure (+1)") | Out-Null; $chadsvascComponents.Add("Congestive Heart Failure (+1)") }
+    if ($controls["Hypertension"].Checked) { $chadsvascScore += 1; $chadsvascDisplay.AppendLine("- Hypertension (+1)") | Out-Null; $chadsvascComponents.Add("Hypertension (+1)") }
+    if ($age -ge 75) { $chadsvascScore += 2; $chadsvascDisplay.AppendLine("- Age >= 75 years (+2)") | Out-Null; $chadsvascComponents.Add("Age >= 75 years (+2)") }
+    elseif ($age -ge 65) { $chadsvascScore += 1; $chadsvascDisplay.AppendLine("- Age 65-74 years (+1)") | Out-Null; $chadsvascComponents.Add("Age 65-74 years (+1)") }
+    if ($controls["Diabetes"].Checked) { $chadsvascScore += 1; $chadsvascDisplay.AppendLine("- Diabetes Mellitus (+1)") | Out-Null; $chadsvascComponents.Add("Diabetes Mellitus (+1)") }
+    if ($controls["Stroke / TIA / Thromboembolism"].Checked) { $chadsvascScore += 2; $chadsvascDisplay.AppendLine("- Stroke/TIA/Thromboembolism (+2)") | Out-Null; $chadsvascComponents.Add("Stroke/TIA/Thromboembolism (+2)") }
+    if ($controls["Vascular Disease (Prior MI, PAD, Aortic Plaque)"].Checked) { $chadsvascScore += 1; $chadsvascDisplay.AppendLine("- Vascular Disease (+1)") | Out-Null; $chadsvascComponents.Add("Vascular Disease (+1)") }
+    if ($isFemale) { $chadsvascScore += 1; $chadsvascDisplay.AppendLine("- Female Sex (+1)") | Out-Null; $chadsvascComponents.Add("Female Sex (+1)") }
     
-    $script:chadsvascResultText = "CHADS-VASc Score: $chadsvascScore`n" + $chadsvascExplanation.ToString()
+    $chadsvascClipboardText = "CHADS-VASc Score: $chadsvascScore"
+    if ($chadsvascComponents.Count -gt 0) {
+        $chadsvascClipboardText += " [" + ($chadsvascComponents -join ', ') + "]"
+    }
+    $script:chadsvascResultText = $chadsvascClipboardText
 
     # --- HAS-BLED Calculation ---
     $hasbledScore = 0
-    $hasbledExplanation = New-Object System.Text.StringBuilder
-    $hasbledExplanation.AppendLine("HAS-BLED Score Components:") | Out-Null
+    $hasbledDisplay = New-Object System.Text.StringBuilder
+    $hasbledDisplay.AppendLine("HAS-BLED Score Components:") | Out-Null
+    $hasbledComponents = New-Object System.Collections.Generic.List[string]
 
-    if ($controls["Hypertension"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Hypertension (+1)") | Out-Null }
-    if ($controls["Abnormal Renal Function"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Abnormal Renal Function (+1)") | Out-Null }
-    if ($controls["Abnormal Liver Function"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Abnormal Liver Function (+1)") | Out-Null }
-    if ($controls["Stroke / TIA / Thromboembolism"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Stroke (+1)") | Out-Null }
-    if ($controls["Bleeding History or Predisposition"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Bleeding History/Predisposition (+1)") | Out-Null }
-    if ($controls["Labile INR"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Labile INR (+1)") | Out-Null }
-    if ($age -gt 65) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Elderly (Age > 65) (+1)") | Out-Null }
-    if ($controls["Concomitant Drugs or Alcohol Use"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Drugs or Alcohol Use (+1)") | Out-Null }
+    if ($controls["Hypertension"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Hypertension (+1)") | Out-Null; $hasbledComponents.Add("Hypertension (+1)") }
+    if ($controls["Abnormal Renal Function"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Abnormal Renal Function (+1)") | Out-Null; $hasbledComponents.Add("Abnormal Renal Function (+1)") }
+    if ($controls["Abnormal Liver Function"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Abnormal Liver Function (+1)") | Out-Null; $hasbledComponents.Add("Abnormal Liver Function (+1)") }
+    if ($controls["Stroke / TIA / Thromboembolism"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Stroke (+1)") | Out-Null; $hasbledComponents.Add("Stroke (+1)") }
+    if ($controls["Bleeding History or Predisposition"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Bleeding History/Predisposition (+1)") | Out-Null; $hasbledComponents.Add("Bleeding History/Predisposition (+1)") }
+    if ($controls["Labile INR"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Labile INR (+1)") | Out-Null; $hasbledComponents.Add("Labile INR (+1)") }
+    if ($age -gt 65) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Elderly (Age > 65) (+1)") | Out-Null; $hasbledComponents.Add("Elderly (Age > 65) (+1)") }
+    if ($controls["Concomitant Drugs or Alcohol Use"].Checked) { $hasbledScore += 1; $hasbledDisplay.AppendLine("- Drugs or Alcohol Use (+1)") | Out-Null; $hasbledComponents.Add("Drugs or Alcohol Use (+1)") }
 
-    $script:hasbledResultText = "HAS-BLED Score: $hasbledScore`n" + $hasbledExplanation.ToString()
+    $hasbledClipboardText = "HAS-BLED Score: $hasbledScore"
+    if ($hasbledComponents.Count -gt 0) {
+        $hasbledClipboardText += " [" + ($hasbledComponents -join ', ') + "]"
+    }
+    $script:hasbledResultText = $hasbledClipboardText
 
     # --- Update Display ---
-    $resultsTextBox.Text = "$($script:chadsvascResultText)`n$($script:hasbledResultText)"
+    $fullDisplayText = "CHADS-VASc Score: $chadsvascScore`n" + $chadsvascDisplay.ToString() + "`nHAS-BLED Score: $hasbledScore`n" + $hasbledDisplay.ToString()
+    $resultsTextBox.Text = $fullDisplayText
 })
 
 # Copy Button Click Logic
@@ -180,3 +191,4 @@ $copyAllButton.Add_Click({
 
 # --- Display the form ---
 $form.ShowDialog()
+
