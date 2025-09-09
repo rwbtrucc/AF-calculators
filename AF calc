@@ -3,24 +3,37 @@ Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 # Create the form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Cardiovascular Risk Calculators"
-# Increased form size to prevent controls from being cut off
-$form.Size = New-Object System.Drawing.Size(450, 750) 
+# Adjusted form size for new layout
+$form.Size = New-Object System.Drawing.Size(450, 700) 
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox = $false
 
+# --- Patient Age Input ---
+$ageLabel = New-Object System.Windows.Forms.Label
+$ageLabel.Text = "Patient Age:"
+$ageLabel.Location = New-Object System.Drawing.Point(20, 25)
+$ageLabel.AutoSize = $true
+$form.Controls.Add($ageLabel)
+
+$ageTextBox = New-Object System.Windows.Forms.TextBox
+$ageTextBox.Location = New-Object System.Drawing.Point(100, 22)
+$ageTextBox.Size = New-Object System.Drawing.Size(50, 20)
+$form.Controls.Add($ageTextBox)
+
 # --- CHADS-VASc section ---
 $chadsvascGroup = New-Object System.Windows.Forms.GroupBox
-$chadsvascGroup.Location = New-Object System.Drawing.Point(20, 20)
-# Increased group box width
-$chadsvascGroup.Size = New-Object System.Drawing.Size(400, 280) 
+# Repositioned group box
+$chadsvascGroup.Location = New-Object System.Drawing.Point(20, 60) 
+# Reduced group box height
+$chadsvascGroup.Size = New-Object System.Drawing.Size(400, 230) 
 $chadsvascGroup.Text = "CHADS-VASc Score"
 $form.Controls.Add($chadsvascGroup)
 
 $chfCheckbox = New-Object System.Windows.Forms.CheckBox
 $chfCheckbox.Text = "CHF"
 $chfCheckbox.Location = New-Object System.Drawing.Point(10, 30)
-$chfCheckbox.AutoSize = $true # Ensure checkbox resizes to fit text
+$chfCheckbox.AutoSize = $true 
 $chadsvascGroup.Controls.Add($chfCheckbox)
 
 $htnCheckbox = New-Object System.Windows.Forms.CheckBox
@@ -29,48 +42,43 @@ $htnCheckbox.Location = New-Object System.Drawing.Point(10, 55)
 $htnCheckbox.AutoSize = $true
 $chadsvascGroup.Controls.Add($htnCheckbox)
 
-$age65Checkbox = New-Object System.Windows.Forms.CheckBox
-$age65Checkbox.Text = "Age 65-74"
-$age65Checkbox.Location = New-Object System.Drawing.Point(10, 80)
-$age65Checkbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($age65Checkbox)
-
-$age75Checkbox = New-Object System.Windows.Forms.CheckBox
-$age75Checkbox.Text = "Age >= 75"
-$age75Checkbox.Location = New-Object System.Drawing.Point(10, 105)
-$age75Checkbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($age75Checkbox)
+# Removed Age checkboxes, replaced by a single text box entry
 
 $diabetesCheckbox = New-Object System.Windows.Forms.CheckBox
 $diabetesCheckbox.Text = "Diabetes"
-$diabetesCheckbox.Location = New-Object System.Drawing.Point(10, 130)
+# Repositioned control
+$diabetesCheckbox.Location = New-Object System.Drawing.Point(10, 80) 
 $diabetesCheckbox.AutoSize = $true
 $chadsvascGroup.Controls.Add($diabetesCheckbox)
 
 $strokeCheckbox = New-Object System.Windows.Forms.CheckBox
 $strokeCheckbox.Text = "Stroke/TIA"
-$strokeCheckbox.Location = New-Object System.Drawing.Point(10, 155)
+# Repositioned control
+$strokeCheckbox.Location = New-Object System.Drawing.Point(10, 105) 
 $strokeCheckbox.AutoSize = $true
 $chadsvascGroup.Controls.Add($strokeCheckbox)
 
 $vascularCheckbox = New-Object System.Windows.Forms.CheckBox
 $vascularCheckbox.Text = "Vascular Disease"
-$vascularCheckbox.Location = New-Object System.Drawing.Point(10, 180)
+# Repositioned control
+$vascularCheckbox.Location = New-Object System.Drawing.Point(10, 130) 
 $vascularCheckbox.AutoSize = $true
 $chadsvascGroup.Controls.Add($vascularCheckbox)
 
 $femaleCheckbox = New-Object System.Windows.Forms.CheckBox
 $femaleCheckbox.Text = "Female"
-$femaleCheckbox.Location = New-Object System.Drawing.Point(10, 205)
+# Repositioned control
+$femaleCheckbox.Location = New-Object System.Drawing.Point(10, 155) 
 $femaleCheckbox.AutoSize = $true
 $chadsvascGroup.Controls.Add($femaleCheckbox)
 
 
 # --- HAS-BLED section ---
 $hasbledGroup = New-Object System.Windows.Forms.GroupBox
-$hasbledGroup.Location = New-Object System.Drawing.Point(20, 310)
-# Increased group box width
-$hasbledGroup.Size = New-Object System.Drawing.Size(400, 280) 
+# Repositioned group box
+$hasbledGroup.Location = New-Object System.Drawing.Point(20, 300) 
+# Reduced group box height
+$hasbledGroup.Size = New-Object System.Drawing.Size(400, 250) 
 $hasbledGroup.Text = "HAS-BLED Score"
 $form.Controls.Add($hasbledGroup)
 
@@ -79,6 +87,10 @@ $htnBleedCheckbox.Text = "Uncontrolled HTN (>160 mmHg)"
 $htnBleedCheckbox.Location = New-Object System.Drawing.Point(10, 30)
 $htnBleedCheckbox.AutoSize = $true
 $hasbledGroup.Controls.Add($htnBleedCheckbox)
+
+# --- Checkbox Synchronization Logic ---
+$htnCheckbox.Add_Click({ $htnBleedCheckbox.Checked = $htnCheckbox.Checked })
+$htnBleedCheckbox.Add_Click({ $htnCheckbox.Checked = $htnBleedCheckbox.Checked })
 
 $renalCheckbox = New-Object System.Windows.Forms.CheckBox
 $renalCheckbox.Text = "Abnormal Renal Function"
@@ -110,44 +122,46 @@ $labileInrCheckbox.Location = New-Object System.Drawing.Point(10, 155)
 $labileInrCheckbox.AutoSize = $true
 $hasbledGroup.Controls.Add($labileInrCheckbox)
 
-$elderlyCheckbox = New-Object System.Windows.Forms.CheckBox
-$elderlyCheckbox.Text = "Elderly (>65 years)"
-$elderlyCheckbox.Location = New-Object System.Drawing.Point(10, 180)
-$elderlyCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($elderlyCheckbox)
+# Removed Elderly checkbox
 
 $drugsAlcoholCheckbox = New-Object System.Windows.Forms.CheckBox
 $drugsAlcoholCheckbox.Text = "Drugs/Alcohol"
-$drugsAlcoholCheckbox.Location = New-Object System.Drawing.Point(10, 205)
+# Repositioned control
+$drugsAlcoholCheckbox.Location = New-Object System.Drawing.Point(10, 180) 
 $drugsAlcoholCheckbox.AutoSize = $true
 $hasbledGroup.Controls.Add($drugsAlcoholCheckbox)
 
 
 # Result label
 $resultLabel = New-Object System.Windows.Forms.Label
-$resultLabel.Location = New-Object System.Drawing.Point(20, 610)
-# Increased label width
+# Repositioned label
+$resultLabel.Location = New-Object System.Drawing.Point(20, 560) 
 $resultLabel.Size = New-Object System.Drawing.Size(400, 40) 
 $resultLabel.Text = ""
 $form.Controls.Add($resultLabel)
 
 # Calculate button
 $calculateButton = New-Object System.Windows.Forms.Button
-# Repositioned button to be centered
-$calculateButton.Location = New-Object System.Drawing.Point(175, 660) 
+# Repositioned button
+$calculateButton.Location = New-Object System.Drawing.Point(175, 610) 
 $calculateButton.Size = New-Object System.Drawing.Size(100, 30)
 $calculateButton.Text = "Calculate Scores"
 $calculateButton.Add_Click({
+    # --- Score Calculation ---
+    [int]$age = 0
+    [void][int]::TryParse($ageTextBox.Text, [ref]$age)
+
     $chadsvascScore = 0
-    # The scoring logic remains the same
     if ($chfCheckbox.Checked) { $chadsvascScore += 1 }
     if ($htnCheckbox.Checked) { $chadsvascScore += 1 }
-    # Corrected logic for Age >= 75: it's 2 points, but shouldn't be added to the 1 point from 65-74
-    if ($age75Checkbox.Checked) { 
+    
+    # Updated logic to use age from text box
+    if ($age -ge 75) { 
         $chadsvascScore += 2 
-    } elseif ($age65Checkbox.Checked) { 
+    } elseif ($age -ge 65) { # Handles ages 65-74
         $chadsvascScore += 1 
     }
+
     if ($diabetesCheckbox.Checked) { $chadsvascScore += 1 }
     if ($strokeCheckbox.Checked) { $chadsvascScore += 2 }
     if ($vascularCheckbox.Checked) { $chadsvascScore += 1 }
@@ -160,7 +174,12 @@ $calculateButton.Add_Click({
     if ($strokeBleedCheckbox.Checked) { $hasbledScore += 1 }
     if ($bleedingHistoryCheckbox.Checked) { $hasbledScore += 1 }
     if ($labileInrCheckbox.Checked) { $hasbledScore += 1 }
-    if ($elderlyCheckbox.Checked) { $hasbledScore += 1 }
+    
+    # Updated logic to use age from text box for "Elderly" point
+    if ($age -gt 65) { 
+        $hasbledScore += 1 
+    }
+
     if ($drugsAlcoholCheckbox.Checked) { $hasbledScore += 1 }
 
     $resultLabel.Text = "CHADS-VASc Score: $chadsvascScore`nHAS-BLED Score: $hasbledScore"
@@ -169,3 +188,4 @@ $form.Controls.Add($calculateButton)
 
 # Display the form
 $form.ShowDialog()
+
