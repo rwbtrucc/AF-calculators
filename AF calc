@@ -88,10 +88,6 @@ $htnBleedCheckbox.Location = New-Object System.Drawing.Point(10, 30)
 $htnBleedCheckbox.AutoSize = $true
 $hasbledGroup.Controls.Add($htnBleedCheckbox)
 
-# --- Checkbox Synchronization Logic ---
-$htnCheckbox.Add_Click({ $htnBleedCheckbox.Checked = $htnCheckbox.Checked })
-$htnBleedCheckbox.Add_Click({ $htnCheckbox.Checked = $htnBleedCheckbox.Checked })
-
 $renalCheckbox = New-Object System.Windows.Forms.CheckBox
 $renalCheckbox.Text = "Abnormal Renal Function"
 $renalCheckbox.Location = New-Object System.Drawing.Point(10, 55)
@@ -109,6 +105,14 @@ $strokeBleedCheckbox.Text = "Prior Stroke"
 $strokeBleedCheckbox.Location = New-Object System.Drawing.Point(10, 105)
 $strokeBleedCheckbox.AutoSize = $true
 $hasbledGroup.Controls.Add($strokeBleedCheckbox)
+
+# --- Checkbox Synchronization Logic ---
+$htnCheckbox.Add_Click({ $htnBleedCheckbox.Checked = $htnCheckbox.Checked })
+$htnBleedCheckbox.Add_Click({ $htnCheckbox.Checked = $htnBleedCheckbox.Checked })
+
+$strokeCheckbox.Add_Click({ $strokeBleedCheckbox.Checked = $strokeCheckbox.Checked })
+$strokeBleedCheckbox.Add_Click({ $strokeCheckbox.Checked = $strokeBleedCheckbox.Checked })
+
 
 $bleedingHistoryCheckbox = New-Object System.Windows.Forms.CheckBox
 $bleedingHistoryCheckbox.Text = "Bleeding History"
