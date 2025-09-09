@@ -1,195 +1,182 @@
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 
-# Create the form
+# --- Global variables to store the detailed results for clipboard ---
+$script:chadsvascResultText = ""
+$script:hasbledResultText = ""
+
+# --- Create the main form ---
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Cardiovascular Risk Calculators"
-# Adjusted form size for new layout
-$form.Size = New-Object System.Drawing.Size(450, 700) 
+$form.Text = "Cardiovascular Risk Calculator"
+$form.Size = New-Object System.Drawing.Size(500, 820)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox = $false
 
-# --- Patient Age Input ---
+# --- Patient Demographics Section ---
+$demographicsGroup = New-Object System.Windows.Forms.GroupBox
+$demographicsGroup.Location = New-Object System.Drawing.Point(15, 15)
+$demographicsGroup.Size = New-Object System.Drawing.Size(460, 60)
+$demographicsGroup.Text = "Patient Info"
+$form.Controls.Add($demographicsGroup)
+
 $ageLabel = New-Object System.Windows.Forms.Label
-$ageLabel.Text = "Patient Age:"
+$ageLabel.Text = "Age:"
 $ageLabel.Location = New-Object System.Drawing.Point(20, 25)
 $ageLabel.AutoSize = $true
-$form.Controls.Add($ageLabel)
+$demographicsGroup.Controls.Add($ageLabel)
 
 $ageTextBox = New-Object System.Windows.Forms.TextBox
-$ageTextBox.Location = New-Object System.Drawing.Point(100, 22)
+$ageTextBox.Location = New-Object System.Drawing.Point(55, 22)
 $ageTextBox.Size = New-Object System.Drawing.Size(50, 20)
-$form.Controls.Add($ageTextBox)
+$demographicsGroup.Controls.Add($ageTextBox)
 
-# --- CHADS-VASc section ---
-$chadsvascGroup = New-Object System.Windows.Forms.GroupBox
-# Repositioned group box
-$chadsvascGroup.Location = New-Object System.Drawing.Point(20, 60) 
-# Reduced group box height
-$chadsvascGroup.Size = New-Object System.Drawing.Size(400, 230) 
-$chadsvascGroup.Text = "CHADS-VASc Score"
-$form.Controls.Add($chadsvascGroup)
+$sexLabel = New-Object System.Windows.Forms.Label
+$sexLabel.Text = "Sex:"
+$sexLabel.Location = New-Object System.Drawing.Point(150, 25)
+$sexLabel.AutoSize = $true
+$demographicsGroup.Controls.Add($sexLabel)
 
-$chfCheckbox = New-Object System.Windows.Forms.CheckBox
-$chfCheckbox.Text = "CHF"
-$chfCheckbox.Location = New-Object System.Drawing.Point(10, 30)
-$chfCheckbox.AutoSize = $true 
-$chadsvascGroup.Controls.Add($chfCheckbox)
+$sexComboBox = New-Object System.Windows.Forms.ComboBox
+$sexComboBox.Location = New-Object System.Drawing.Point(185, 22)
+$sexComboBox.Size = New-Object System.Drawing.Size(80, 20)
+$sexComboBox.Items.AddRange(@("Male", "Female"))
+$sexComboBox.SelectedIndex = 0 # Default to Male
+$demographicsGroup.Controls.Add($sexComboBox)
 
-$htnCheckbox = New-Object System.Windows.Forms.CheckBox
-$htnCheckbox.Text = "Hypertension"
-$htnCheckbox.Location = New-Object System.Drawing.Point(10, 55)
-$htnCheckbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($htnCheckbox)
+# --- Risk Factors Section ---
+$riskFactorsGroup = New-Object System.Windows.Forms.GroupBox
+$riskFactorsGroup.Location = New-Object System.Drawing.Point(15, 85)
+$riskFactorsGroup.Size = New-Object System.Drawing.Size(460, 300)
+$riskFactorsGroup.Text = "Risk Factors"
+$form.Controls.Add($riskFactorsGroup)
 
-# Removed Age checkboxes, replaced by a single text box entry
+# Create and position all checkboxes in two columns
+$checkboxes = @{
+    "CHF (Congestive Heart Failure)" = New-Object System.Drawing.Point(20, 30);
+    "Hypertension" = New-Object System.Drawing.Point(20, 55);
+    "Diabetes" = New-Object System.Drawing.Point(20, 80);
+    "Stroke / TIA / Thromboembolism" = New-Object System.Drawing.Point(20, 105);
+    "Vascular Disease (Prior MI, PAD, Aortic Plaque)" = New-Object System.Drawing.Point(20, 130);
+    "Abnormal Renal Function" = New-Object System.Drawing.Point(20, 155);
+    "Abnormal Liver Function" = New-Object System.Drawing.Point(20, 180);
+    "Bleeding History or Predisposition" = New-Object System.Drawing.Point(20, 205);
+    "Labile INR" = New-Object System.Drawing.Point(20, 230);
+    "Concomitant Drugs or Alcohol Use" = New-Object System.Drawing.Point(20, 255);
+}
 
-$diabetesCheckbox = New-Object System.Windows.Forms.CheckBox
-$diabetesCheckbox.Text = "Diabetes"
-# Repositioned control
-$diabetesCheckbox.Location = New-Object System.Drawing.Point(10, 80) 
-$diabetesCheckbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($diabetesCheckbox)
+$controls = @{}
+foreach ($text in $checkboxes.Keys) {
+    $checkbox = New-Object System.Windows.Forms.CheckBox
+    $checkbox.Text = $text
+    $checkbox.Location = $checkboxes[$text]
+    $checkbox.AutoSize = $true
+    $riskFactorsGroup.Controls.Add($checkbox)
+    $controls[$text] = $checkbox
+}
 
-$strokeCheckbox = New-Object System.Windows.Forms.CheckBox
-$strokeCheckbox.Text = "Stroke/TIA"
-# Repositioned control
-$strokeCheckbox.Location = New-Object System.Drawing.Point(10, 105) 
-$strokeCheckbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($strokeCheckbox)
-
-$vascularCheckbox = New-Object System.Windows.Forms.CheckBox
-$vascularCheckbox.Text = "Vascular Disease"
-# Repositioned control
-$vascularCheckbox.Location = New-Object System.Drawing.Point(10, 130) 
-$vascularCheckbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($vascularCheckbox)
-
-$femaleCheckbox = New-Object System.Windows.Forms.CheckBox
-$femaleCheckbox.Text = "Female"
-# Repositioned control
-$femaleCheckbox.Location = New-Object System.Drawing.Point(10, 155) 
-$femaleCheckbox.AutoSize = $true
-$chadsvascGroup.Controls.Add($femaleCheckbox)
-
-
-# --- HAS-BLED section ---
-$hasbledGroup = New-Object System.Windows.Forms.GroupBox
-# Repositioned group box
-$hasbledGroup.Location = New-Object System.Drawing.Point(20, 300) 
-# Reduced group box height
-$hasbledGroup.Size = New-Object System.Drawing.Size(400, 250) 
-$hasbledGroup.Text = "HAS-BLED Score"
-$form.Controls.Add($hasbledGroup)
-
-$htnBleedCheckbox = New-Object System.Windows.Forms.CheckBox
-$htnBleedCheckbox.Text = "Uncontrolled HTN (>160 mmHg)"
-$htnBleedCheckbox.Location = New-Object System.Drawing.Point(10, 30)
-$htnBleedCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($htnBleedCheckbox)
-
-$renalCheckbox = New-Object System.Windows.Forms.CheckBox
-$renalCheckbox.Text = "Abnormal Renal Function"
-$renalCheckbox.Location = New-Object System.Drawing.Point(10, 55)
-$renalCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($renalCheckbox)
-
-$liverCheckbox = New-Object System.Windows.Forms.CheckBox
-$liverCheckbox.Text = "Abnormal Liver Function"
-$liverCheckbox.Location = New-Object System.Drawing.Point(10, 80)
-$liverCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($liverCheckbox)
-
-$strokeBleedCheckbox = New-Object System.Windows.Forms.CheckBox
-$strokeBleedCheckbox.Text = "Prior Stroke"
-$strokeBleedCheckbox.Location = New-Object System.Drawing.Point(10, 105)
-$strokeBleedCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($strokeBleedCheckbox)
-
-# --- Checkbox Synchronization Logic ---
-$htnCheckbox.Add_Click({ $htnBleedCheckbox.Checked = $htnCheckbox.Checked })
-$htnBleedCheckbox.Add_Click({ $htnCheckbox.Checked = $htnBleedCheckbox.Checked })
-
-$strokeCheckbox.Add_Click({ $strokeBleedCheckbox.Checked = $strokeCheckbox.Checked })
-$strokeBleedCheckbox.Add_Click({ $strokeCheckbox.Checked = $strokeBleedCheckbox.Checked })
-
-
-$bleedingHistoryCheckbox = New-Object System.Windows.Forms.CheckBox
-$bleedingHistoryCheckbox.Text = "Bleeding History"
-$bleedingHistoryCheckbox.Location = New-Object System.Drawing.Point(10, 130)
-$bleedingHistoryCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($bleedingHistoryCheckbox)
-
-$labileInrCheckbox = New-Object System.Windows.Forms.CheckBox
-$labileInrCheckbox.Text = "Labile INR"
-$labileInrCheckbox.Location = New-Object System.Drawing.Point(10, 155)
-$labileInrCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($labileInrCheckbox)
-
-# Removed Elderly checkbox
-
-$drugsAlcoholCheckbox = New-Object System.Windows.Forms.CheckBox
-$drugsAlcoholCheckbox.Text = "Drugs/Alcohol"
-# Repositioned control
-$drugsAlcoholCheckbox.Location = New-Object System.Drawing.Point(10, 180) 
-$drugsAlcoholCheckbox.AutoSize = $true
-$hasbledGroup.Controls.Add($drugsAlcoholCheckbox)
-
-
-# Result label
-$resultLabel = New-Object System.Windows.Forms.Label
-# Repositioned label
-$resultLabel.Location = New-Object System.Drawing.Point(20, 560) 
-$resultLabel.Size = New-Object System.Drawing.Size(400, 40) 
-$resultLabel.Text = ""
-$form.Controls.Add($resultLabel)
-
-# Calculate button
+# --- Calculate Button ---
 $calculateButton = New-Object System.Windows.Forms.Button
-# Repositioned button
-$calculateButton.Location = New-Object System.Drawing.Point(175, 610) 
-$calculateButton.Size = New-Object System.Drawing.Size(100, 30)
+$calculateButton.Location = New-Object System.Drawing.Point(180, 395)
+$calculateButton.Size = New-Object System.Drawing.Size(120, 30)
 $calculateButton.Text = "Calculate Scores"
-$calculateButton.Add_Click({
-    # --- Score Calculation ---
-    [int]$age = 0
-    [void][int]::TryParse($ageTextBox.Text, [ref]$age)
-
-    $chadsvascScore = 0
-    if ($chfCheckbox.Checked) { $chadsvascScore += 1 }
-    if ($htnCheckbox.Checked) { $chadsvascScore += 1 }
-    
-    # Updated logic to use age from text box
-    if ($age -ge 75) { 
-        $chadsvascScore += 2 
-    } elseif ($age -ge 65) { # Handles ages 65-74
-        $chadsvascScore += 1 
-    }
-
-    if ($diabetesCheckbox.Checked) { $chadsvascScore += 1 }
-    if ($strokeCheckbox.Checked) { $chadsvascScore += 2 }
-    if ($vascularCheckbox.Checked) { $chadsvascScore += 1 }
-    if ($femaleCheckbox.Checked) { $chadsvascScore += 1 }
-
-    $hasbledScore = 0
-    if ($htnBleedCheckbox.Checked) { $hasbledScore += 1 }
-    if ($renalCheckbox.Checked) { $hasbledScore += 1 }
-    if ($liverCheckbox.Checked) { $hasbledScore += 1 }
-    if ($strokeBleedCheckbox.Checked) { $hasbledScore += 1 }
-    if ($bleedingHistoryCheckbox.Checked) { $hasbledScore += 1 }
-    if ($labileInrCheckbox.Checked) { $hasbledScore += 1 }
-    
-    # Updated logic to use age from text box for "Elderly" point
-    if ($age -gt 65) { 
-        $hasbledScore += 1 
-    }
-
-    if ($drugsAlcoholCheckbox.Checked) { $hasbledScore += 1 }
-
-    $resultLabel.Text = "CHADS-VASc Score: $chadsvascScore`nHAS-BLED Score: $hasbledScore"
-})
 $form.Controls.Add($calculateButton)
 
-# Display the form
-$form.ShowDialog()
+# --- Results Section ---
+$resultsGroup = New-Object System.Windows.Forms.GroupBox
+$resultsGroup.Location = New-Object System.Drawing.Point(15, 435)
+$resultsGroup.Size = New-Object System.Drawing.Size(460, 260)
+$resultsGroup.Text = "Results"
+$form.Controls.Add($resultsGroup)
 
+$resultsTextBox = New-Object System.Windows.Forms.RichTextBox
+$resultsTextBox.Location = New-Object System.Drawing.Point(10, 20)
+$resultsTextBox.Size = New-Object System.Drawing.Size(440, 230)
+$resultsTextBox.ReadOnly = $true
+$resultsTextBox.Font = New-Object System.Drawing.Font("Consolas", 10)
+$resultsGroup.Controls.Add($resultsTextBox)
+
+# --- Copy Buttons Section ---
+$copyCHADSButton = New-Object System.Windows.Forms.Button
+$copyCHADSButton.Location = New-Object System.Drawing.Point(15, 710)
+$copyCHADSButton.Size = New-Object System.Drawing.Size(140, 30)
+$copyCHADSButton.Text = "Copy CHADS-VASc"
+$form.Controls.Add($copyCHADSButton)
+
+$copyHASBLEDButton = New-Object System.Windows.Forms.Button
+$copyHASBLEDButton.Location = New-Object System.Drawing.Point(170, 710)
+$copyHASBLEDButton.Size = New-Object System.Drawing.Size(140, 30)
+$copyHASBLEDButton.Text = "Copy HAS-BLED"
+$form.Controls.Add($copyHASBLEDButton)
+
+$copyAllButton = New-Object System.Windows.Forms.Button
+$copyAllButton.Location = New-Object System.Drawing.Point(325, 710)
+$copyAllButton.Size = New-Object System.Drawing.Size(150, 30)
+$copyAllButton.Text = "Copy Both Scores"
+$form.Controls.Add($copyAllButton)
+
+# --- Event Handlers ---
+
+# Calculate Button Click Logic
+$calculateButton.Add_Click({
+    [int]$age = 0
+    [void][int]::TryParse($ageTextBox.Text, [ref]$age)
+    $isFemale = $sexComboBox.SelectedItem -eq "Female"
+
+    # --- CHADS-VASc Calculation ---
+    $chadsvascScore = 0
+    $chadsvascExplanation = New-Object System.Text.StringBuilder
+    $chadsvascExplanation.AppendLine("CHADS-VASc Score Components:") | Out-Null
+    
+    if ($controls["CHF (Congestive Heart Failure)"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Congestive Heart Failure (+1)") | Out-Null }
+    if ($controls["Hypertension"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Hypertension (+1)") | Out-Null }
+    if ($age -ge 75) { $chadsvascScore += 2; $chadsvascExplanation.AppendLine("- Age >= 75 years (+2)") | Out-Null }
+    elseif ($age -ge 65) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Age 65-74 years (+1)") | Out-Null }
+    if ($controls["Diabetes"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Diabetes Mellitus (+1)") | Out-Null }
+    if ($controls["Stroke / TIA / Thromboembolism"].Checked) { $chadsvascScore += 2; $chadsvascExplanation.AppendLine("- Stroke/TIA/Thromboembolism (+2)") | Out-Null }
+    if ($controls["Vascular Disease (Prior MI, PAD, Aortic Plaque)"].Checked) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Vascular Disease (+1)") | Out-Null }
+    if ($isFemale) { $chadsvascScore += 1; $chadsvascExplanation.AppendLine("- Female Sex (+1)") | Out-Null }
+    
+    $script:chadsvascResultText = "CHADS-VASc Score: $chadsvascScore`n" + $chadsvascExplanation.ToString()
+
+    # --- HAS-BLED Calculation ---
+    $hasbledScore = 0
+    $hasbledExplanation = New-Object System.Text.StringBuilder
+    $hasbledExplanation.AppendLine("HAS-BLED Score Components:") | Out-Null
+
+    if ($controls["Hypertension"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Hypertension (+1)") | Out-Null }
+    if ($controls["Abnormal Renal Function"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Abnormal Renal Function (+1)") | Out-Null }
+    if ($controls["Abnormal Liver Function"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Abnormal Liver Function (+1)") | Out-Null }
+    if ($controls["Stroke / TIA / Thromboembolism"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Stroke (+1)") | Out-Null }
+    if ($controls["Bleeding History or Predisposition"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Bleeding History/Predisposition (+1)") | Out-Null }
+    if ($controls["Labile INR"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Labile INR (+1)") | Out-Null }
+    if ($age -gt 65) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Elderly (Age > 65) (+1)") | Out-Null }
+    if ($controls["Concomitant Drugs or Alcohol Use"].Checked) { $hasbledScore += 1; $hasbledExplanation.AppendLine("- Drugs or Alcohol Use (+1)") | Out-Null }
+
+    $script:hasbledResultText = "HAS-BLED Score: $hasbledScore`n" + $hasbledExplanation.ToString()
+
+    # --- Update Display ---
+    $resultsTextBox.Text = "$($script:chadsvascResultText)`n$($script:hasbledResultText)"
+})
+
+# Copy Button Click Logic
+$copyCHADSButton.Add_Click({
+    if (-not [string]::IsNullOrEmpty($script:chadsvascResultText)) {
+        [System.Windows.Forms.Clipboard]::SetText($script:chadsvascResultText)
+    }
+})
+
+$copyHASBLEDButton.Add_Click({
+    if (-not [string]::IsNullOrEmpty($script:hasbledResultText)) {
+        [System.Windows.Forms.Clipboard]::SetText($script:hasbledResultText)
+    }
+})
+
+$copyAllButton.Add_Click({
+    if (-not [string]::IsNullOrEmpty($script:chadsvascResultText)) {
+        $allText = "$($script:chadsvascResultText)`n$($script:hasbledResultText)"
+        [System.Windows.Forms.Clipboard]::SetText($allText)
+    }
+})
+
+# --- Display the form ---
+$form.ShowDialog()
