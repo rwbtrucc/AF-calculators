@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cardiovascular Risk Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fafaff; margin: 0; }
+    .container { width: 500px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 16px #0001; padding: 20px; }
+    h2 { margin-top: 0; }
+    .group { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 18px; padding: 14px; }
+    .group label { display: inline-block; width: 140px; }
+    .risk-factors label { display: block; width: auto; margin-bottom: 2px; }
+    .results-box { width: 100%; height: 160px; font-family: Consolas, monospace; font-size: 14px; margin-top: 6px; margin-bottom: 14px; }
+    .button-row { display: flex; gap: 12px; margin-top: 8px; }
+    button { padding: 8px 18px; font-size: 16px; border-radius: 6px; border: 1px solid #357; background: #357; color: #fff; cursor: pointer; }
+    button:hover { background: #469; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Cardiovascular Risk Calculator</h2>
+
+    <div class="group">
+      <strong>Patient Info</strong><br>
+      <label>Age: <input type="number" id="age" min="0" max="120" style="width:60px;"></label>
+      <label>Sex:
+        <select id="sex">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="group risk-factors">
+      <strong>Risk Factors</strong><br>
+      <label><input type="checkbox" id="CHF"> CHF (Congestive Heart Failure)</label>
+      <label><input type="checkbox" id="Hypertension"> Hypertension</label>
+      <label><input type="checkbox" id="Diabetes"> Diabetes</label>
+      <label><input type="checkbox" id="Stroke"> Stroke / TIA / Thromboembolism</label>
+      <label><input type="checkbox" id="Vascular"> Vascular Disease (Prior MI, PAD, Aortic Plaque)</label>
+      <label><input type="checkbox" id="Renal"> Abnormal Renal Function</label>
+      <label><input type="checkbox" id="Liver"> Abnormal Liver Function</label>
+      <label><input type="checkbox" id="Bleeding"> Bleeding History or Predisposition</label>
+      <label><input type="checkbox" id="INR"> Labile INR</label>
+      <label><input type="checkbox" id="DrugsAlcohol"> Concomitant Drugs or Alcohol Use</label>
+    </div>
+
+    <button id="calculate">Calculate Scores</button>
+
+    <div class="group">
+      <strong>Results</strong>
+      <textarea id="results" class="results-box" readonly></textarea>
+      <div class="button-row">
+        <button id="copyCHADS">Copy CHADS-VASc</button>
+        <button id="copyHASBLED">Copy HAS-BLED</button>
+        <button id="copyBoth">Copy Both Scores</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let chadsvascResultText = "";
+    let hasbledResultText = "";
+
+    document.getElementById("calculate").onclick = function() {
+      const age = parseInt(document.getElementById("age").value) || 0;
+      const sex = document.getElementById("sex").value;
+
+      // Risk factor checkboxes
+      const CHF = document.getElementById("CHF").checked;
+      const Hypertension = document.getElementById("Hypertension").checked;
+      const Diabetes = document.getElementById("Diabetes").checked;
+      const Stroke = document.getElementById("Stroke").checked;
+      const Vascular = document.getElementById("Vascular").checked;
+      const Renal = document.getElementById("Renal").checked;
+      const Liver = document.getElementById("Liver").checked;
+      const Bleeding = document.getElementById("Bleeding").checked;
+      const INR = document.getElementById("INR").checked;
+      const DrugsAlcohol = document.getElementById("DrugsAlcohol").checked;
+
+      // --- CHADS-VASc Calculation ---
+      let chadsvascScore = 0;
+      let chadsvascComponents = [];
+      let chadsvascDisplay = "CHADS-VASc Score Components:\n";
+      if (CHF) { chadsvascScore += 1; chadsvascDisplay += "- Congestive Heart Failure (+1)\n"; chadsvascComponents.push("Congestive Heart Failure (+1)"); }
+      if (Hypertension) { chadsvascScore += 1; chadsvascDisplay += "- Hypertension (+1)\n"; chadsvascComponents.push("Hypertension (+1)"); }
+      if (age >= 75) { chadsvascScore += 2; chadsvascDisplay += "- Age >= 75 years (+2)\n"; chadsvascComponents.push("Age >= 75 years (+2)"); }
+      else if (age >= 65) { chadsvascScore += 1; chadsvascDisplay += "- Age 65-74 years (+1)\n"; chadsvascComponents.push("Age 65-74 years (+1)"); }
+      if (Diabetes) { chadsvascScore += 1; chadsvascDisplay += "- Diabetes Mellitus (+1)\n"; chadsvascComponents.push("Diabetes Mellitus (+1)"); }
+      if (Stroke) { chadsvascScore += 2; chadsvascDisplay += "- Stroke/TIA/Thromboembolism (+2)\n"; chadsvascComponents.push("Stroke/TIA/Thromboembolism (+2)"); }
+      if (Vascular) { chadsvascScore += 1; chadsvascDisplay += "- Vascular Disease (+1)\n"; chadsvascComponents.push("Vascular Disease (+1)"); }
+      if (sex === "Female") { chadsvascScore += 1; chadsvascDisplay += "- Female Sex (+1)\n"; chadsvascComponents.push("Female Sex (+1)"); }
+
+      chadsvascResultText = "CHADS-VASc Score: " + chadsvascScore;
+      if (chadsvascComponents.length > 0) {
+        chadsvascResultText += " [" + chadsvascComponents.join(', ') + "]";
+      }
+
+      // --- HAS-BLED Calculation ---
+      let hasbledScore = 0;
+      let hasbledComponents = [];
+      let hasbledDisplay = "HAS-BLED Score Components:\n";
+      if (Hypertension) { hasbledScore += 1; hasbledDisplay += "- Hypertension (+1)\n"; hasbledComponents.push("Hypertension (+1)"); }
+      if (Renal) { hasbledScore += 1; hasbledDisplay += "- Abnormal Renal Function (+1)\n"; hasbledComponents.push("Abnormal Renal Function (+1)"); }
+      if (Liver) { hasbledScore += 1; hasbledDisplay += "- Abnormal Liver Function (+1)\n"; hasbledComponents.push("Abnormal Liver Function (+1)"); }
+      if (Stroke) { hasbledScore += 1; hasbledDisplay += "- Stroke (+1)\n"; hasbledComponents.push("Stroke (+1)"); }
+      if (Bleeding) { hasbledScore += 1; hasbledDisplay += "- Bleeding History/Predisposition (+1)\n"; hasbledComponents.push("Bleeding History/Predisposition (+1)"); }
+      if (INR) { hasbledScore += 1; hasbledDisplay += "- Labile INR (+1)\n"; hasbledComponents.push("Labile INR (+1)"); }
+      if (age > 65) { hasbledScore += 1; hasbledDisplay += "- Elderly (Age > 65) (+1)\n"; hasbledComponents.push("Elderly (Age > 65) (+1)"); }
+      if (DrugsAlcohol) { hasbledScore += 1; hasbledDisplay += "- Drugs or Alcohol Use (+1)\n"; hasbledComponents.push("Drugs or Alcohol Use (+1)"); }
+
+      hasbledResultText = "HAS-BLED Score: " + hasbledScore;
+      if (hasbledComponents.length > 0) {
+        hasbledResultText += " [" + hasbledComponents.join(', ') + "]";
+      }
+
+      // --- Update Display ---
+      let fullDisplayText = "CHADS-VASc Score: " + chadsvascScore + "\n" +
+                            chadsvascDisplay + "\n" +
+                            "HAS-BLED Score: " + hasbledScore + "\n" +
+                            hasbledDisplay;
+      document.getElementById("results").value = fullDisplayText;
+    };
+
+    document.getElementById("copyCHADS").onclick = function() {
+      if (chadsvascResultText) navigator.clipboard.writeText(chadsvascResultText);
+    };
+    document.getElementById("copyHASBLED").onclick = function() {
+      if (hasbledResultText) navigator.clipboard.writeText(hasbledResultText);
+    };
+    document.getElementById("copyBoth").onclick = function() {
+      if (chadsvascResultText || hasbledResultText) {
+        navigator.clipboard.writeText(chadsvascResultText + "\n" + hasbledResultText);
+      }
+    };
+  </script>
+</body>
+</html>
